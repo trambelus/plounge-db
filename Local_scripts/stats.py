@@ -80,7 +80,7 @@ def main():
 			ftp.quit()
 			log("Sleeping...")
 			time.sleep(300)
-		except ex:
+		except Exception as ex:
 			print(ex)
 			time.sleep(5)
 		

@@ -7,3 +7,7 @@ Local_scripts/lastUpdated.txt
 *.txt
 *.txt
 Local_scripts/lastUpdated.txt
+*.js
+*.pyc
+*.pyc
+*.txt
