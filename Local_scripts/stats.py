@@ -42,7 +42,7 @@ def main():
 		# statsWeek
 		l = db.execute("SELECT author, count(*) FROM comments WHERE udate > datetime('now','-7 days', 'localtime') AND author != '[deleted]' GROUP BY author ORDER BY count(*) DESC").fetchall()
 		with open("statsWeek.txt",'w') as f:
-			stats = ["%d:%s:%d" % tuple([i+1]+list(l[i])) for i in range(len(l))]
+			stats = ["<tr><td>%d</td><td>%s</td><td>%d</td></tr>" % tuple([i+1]+list(l[i])) for i in range(len(l))]
 			f.write("\n".join(stats))
 		# with open("statsWeekA.txt",'w') as f:
 		# 	stats = ["%d:%s:%d" % tuple([i+1]+list(l[i])) for i in range(len(l))]
@@ -52,7 +52,7 @@ def main():
 		# statsDay
 		l = db.execute("SELECT author, count(*) FROM comments WHERE udate > datetime('now','-1 days', 'localtime') AND author != '[deleted]' GROUP BY author ORDER BY count(*) DESC").fetchall()
 		with open("statsDay.txt",'w') as f:
-			stats = ["%d:%s:%d" % tuple([i+1]+list(l[i])) for i in range(len(l))]
+			stats = ["<tr><td>%d</td><td>%s</td><td>%d</td></tr>" % tuple([i+1]+list(l[i])) for i in range(len(l))]
 			f.write("\n".join(stats))
 		#with open("statsDayA.txt",'w') as f:
 		#	stats = ["%d:%s:%d" % tuple([i+1]+list(l[i])) for i in range(len(l))]
