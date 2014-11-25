@@ -45,11 +45,9 @@ def monitor(db, sub, thread):
 				data = (c.name, c.parent_id, author, c.body, c.permalink,)
 				try:
 					db.execute(query,data)
-					# if author != "[deleted]":
-					# 	p = Process(target=dbt.buildPage, args=(author,))
-					# 	p.start()
-					# if "brony" in c.body.lower() and "/u/__brony__" not in c.body.lower() and c.author == "BurlyHermit":
-					# 	notify(c.permalink,'__brony__')
+					if author != "[deleted]":
+						p = Process(target=dbt.buildPage, args=(author,))
+						p.start()
 					print("%s: new comment by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(c.created-46800)),author))
 				except sqlite3.IntegrityError as ex:
 					pass
