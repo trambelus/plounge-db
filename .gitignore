@@ -1,3 +1,7 @@
 *.db3
 rlogin.py
 rlogin.pyc
+Local_scripts/lastUpdated.txt
+Local_scripts/lastUpdated.txt
+*.db3-journal
+*.txt
