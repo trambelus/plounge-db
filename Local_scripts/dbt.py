@@ -19,7 +19,7 @@ def buildPage(user):
 	with open('user_update_cache.txt','w') as f:
 		f.write("".join([" ".join(map(str,[t_usr, t_time])) for t_usr, t_time in lu.iteritems()]))
 
-	s = "$(function(){Morris.Area({element:'morris-area-chart',data:["
+	s = "jQuery(function($){Morris.Area({element:'morris-area-chart',data:["
 	db = sqlite3.connect('plounge.db3')
 	for i in range(24):
 		lc = len(db.execute("""SELECT * FROM comments WHERE author = ? 
