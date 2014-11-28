@@ -67,7 +67,7 @@ def buildPage(user):
 	q2 = db.execute("SELECT author, COUNT(*) AS n FROM comments WHERE id IN (SELECT parent_id FROM comments WHERE author = '%s') GROUP BY author ORDER BY n DESC LIMIT 25" % user).fetchall()
 	s2 = "".join(['<tr><td>%s</td><td>%d</td>' % (el[0], el[1]) for el in q2])
 
-	s = s + """document.getElementById("UsersWhoReplied").innerHTML='%s';document.getElementById("UsersRepliedTo").innerHTML='%s';});""" % (s1, s2)
+	s = s + """document.getElementById("UsersWhoReplied").innerHTML='<table><tr><th>Users who replied to this user</th><th>Times</th></tr>%s</table>';document.getElementById("UsersRepliedTo").innerHTML='<table><tr><th>Users this user replied to</th><th>Times</th></tr>%s</table>';});""" % (s1, s2)
 
 	ftp = rlogin.getFTP()
 	rlogin.FTPlogin(ftp)
