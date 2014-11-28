@@ -63,9 +63,9 @@ def buildPage(user):
 	s = s + """],xkey:'period',ykeys:['comments','posts'],labels:['Comments','Posts'],pointSize:2,hideHover:'auto',resize:true,parseTime:false});"""
 
 	q1 = db.execute("SELECT author, COUNT(*) AS n FROM comments WHERE parent_id IN (SELECT id FROM comments WHERE author = '%s') GROUP BY author ORDER BY n DESC LIMIT 25" % user).fetchall()
-	s1 = "".join(['<a href="#" class="list-group-item"><i class="fa fa-comment fa-fw"></i> %s<span class="pull-right text-muted small"><em>%d</em></span></a>' % (el[0], el[1]) for el in q1])
+	s1 = "".join(['<tr><td>%s</td><td>%d</td>' % (el[0], el[1]) for el in q1])
 	q2 = db.execute("SELECT author, COUNT(*) AS n FROM comments WHERE id IN (SELECT parent_id FROM comments WHERE author = '%s') GROUP BY author ORDER BY n DESC LIMIT 25" % user).fetchall()
-	s2 = "".join(['<a href="#" class="list-group-item"><i class="fa fa-comment fa-fw"></i> %s<span class="pull-right text-muted small"><em>%d</em></span></a>' % (el[0], el[1]) for el in q2])
+	s2 = "".join(['<tr><td>%s</td><td>%d</td>' % (el[0], el[1]) for el in q2])
 
 	s = s + """document.getElementById("UsersWhoReplied").innerHTML='%s';document.getElementById("UsersRepliedTo").innerHTML='%s';});""" % (s1, s2)
 
