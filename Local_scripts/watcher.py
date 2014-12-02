@@ -1,11 +1,28 @@
 #!/usr/bin/env python
+# Better comments to follow. Fear not, /u/jherazob.
 
 from multiprocessing import Process
 import sqlite3
 import threading
 import time
-import rlogin
-import dbt
+
+# rlogin.py exists only on __brony__'s machine
+# (isn't synced because it contains login info)
+# Sooner or later I'll fix that, but for now...
+rlogin_enabled = True
+try:
+	import rlogin
+except ImportError:
+	rlogin_enabled = False
+	import praw # fallback
+
+dbt_enabled = rlogin_enabled
+# without rlogin, don't even bother with dbt
+try:
+	import dbt
+except ImportError:
+	dbt_enabled = False
+
 
 def log(msg):
 	print("%s:\t%s" % (time.strftime("%Y-%m-%d %X"), msg))
@@ -45,9 +62,10 @@ def monitor(db, sub, thread):
 				data = (c.name, c.parent_id, author, c.body, c.permalink,)
 				try:
 					db.execute(query,data)
-					if author != "[deleted]":
-						p = Process(target=dbt.buildPage, args=(author,))
-						p.start()
+					if dbt_enabled:
+						if author != "[deleted]":
+							p = Process(target=dbt.buildPage, args=(author,))
+							p.start()
 					print("%s: new comment by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(c.created-46800)),author))
 				except sqlite3.IntegrityError as ex:
 					pass
@@ -93,8 +111,15 @@ def wait():
 	print("Saving...")
 
 def main():
-	[r, sub] = rlogin.login()
-	print("Login successful")
+	dbt_enabled = False # included as long as Pizza's site is broken
+	if rlogin_enabled:
+		[r, sub] = rlogin.login()
+		print("Login successful")
+	else:
+		r = praw.Reddit("plounge-db watcher.py, by __brony__")
+		sub = r.get_subreddit('mlplounge')
+		print("rlogin.py not detected. Using anonymous session.")
+
 	db = init_db("plounge2.db3")
 	thread = threading.Thread(target=wait)
 	thread.start()
