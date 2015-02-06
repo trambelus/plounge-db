@@ -28,7 +28,7 @@ except ImportError:
 # Doesn't actually log, just prints a message to the console
 #  with the current date and time.
 def log(msg):
-	print(("%s:\t%s" % (time.strftime("%Y-%m-%d %X"), msg)))
+	print("%s:\t%s" % (time.strftime("%Y-%m-%d %X"), msg))
 
 # Connects to the database. Creates it if it needs to.
 def init_db(filename):
@@ -77,7 +77,7 @@ def monitor(db, sub, quit_thread):
 					# 	if author != "[deleted]": # This 'user' doesn't get a page.
 					# 		p = Process(target=dbt.buildPage, args=(author,))
 					# 		p.start()
-					print(("%s: new comment by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(c.created-46800)),author)))
+					print("%s: new comment by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(c.created-46800)),author))
 				except sqlite3.IntegrityError as ex:
 					continue # IntegrityError means there was already a matching entry in the db.
 					# In that case, just do nothing.
@@ -105,7 +105,7 @@ def monitor(db, sub, quit_thread):
 				data = (s.name, s.title, author, s.selftext, s.url, s.permalink,)
 				try:
 					db.execute(query,data) # attempt to execute query
-					print(("%s: new submission by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(s.created-46800)),author)))
+					print("%s: new submission by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(s.created-46800)),author))
 				except sqlite3.IntegrityError as ex:
 					continue # IntegrityError means there was already a matching entry in the db.
 					# In that case, just do nothing.
@@ -126,7 +126,7 @@ def monitor(db, sub, quit_thread):
 # This one runs in a separate thread.
 # Waits for user to type "q" and press enter.
 def wait():
-	while input() != "q":
+	while raw_input() != "q":
 		pass
 	print("Saving...")
 

@@ -47,7 +47,7 @@ def monitor(db, sub, thread):
 					# 	stats.sendPage("%s.js" % author)
 					# if "brony" in c.body.lower() and "/u/__brony__" not in c.body.lower() and c.author == "BurlyHermit":
 					# 	notify(c.permalink,'__brony__')
-					print(("%s: new comment by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(c.created-46800)),author)))
+					print("%s: new comment by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(c.created-46800)),author))
 				except sqlite3.IntegrityError as ex:
 					pass
 
@@ -72,7 +72,7 @@ def monitor(db, sub, thread):
 				data = (s.name, s.title, author, s.selftext, s.url, s.permalink,)
 				try:
 					db.execute(query,data)
-					print(("%s: new submission by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(s.created-46800)),author)))
+					print("%s: new submission by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(s.created-46800)),author))
 				except sqlite3.IntegrityError as ex:
 					pass
 				if not thread.is_alive():
@@ -90,7 +90,7 @@ def monitor(db, sub, thread):
 	db.close()
 
 def wait():
-	while input() != "q":
+	while raw_input() != "q":
 		pass
 	print("Saving...")
 

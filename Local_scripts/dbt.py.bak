@@ -6,7 +6,7 @@ import datetime
 UPDATE_INTERVAL = 3600
 
 def log(msg):
-	print(("%s:\t%s" % (time.strftime("%Y-%m-%d %X"), msg)))
+	print("%s:\t%s" % (time.strftime("%Y-%m-%d %X"), msg))
 
 def buildPage(user):
 
@@ -17,7 +17,7 @@ def buildPage(user):
 		return
 	lu[user] = str(int(time.time()))+'\n'
 	with open('user_update_cache.txt','w') as f:
-		f.write("".join([" ".join(map(str,[t_usr, t_time])) for t_usr, t_time in lu.items()]))
+		f.write("".join([" ".join(map(str,[t_usr, t_time])) for t_usr, t_time in lu.iteritems()]))
 
 	s = "jQuery(function($){Morris.Area({element:'morris-area-chart',data:["
 	db = sqlite3.connect('plounge.db3')
@@ -76,7 +76,7 @@ def buildPage(user):
 		f.write(s)
 	with open('userstats\\%s.js' % user,'r') as f:
 		ftp.storbinary('STOR %s.js' % user, f)
-	print(("%s.js transfer successful" % user))
+	print("%s.js transfer successful" % user)
 
 	
 	

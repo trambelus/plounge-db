@@ -31,15 +31,11 @@ def init_db(filename):
 		);""")
 	return db
 
-def monitor(db, sub, thread, r):
+def monitor(db, sub, thread):
 
-	with open('ids.txt','r') as f:
-		ps = f.readlines()
-	for ins in ps:
-		print(ins[:-1])
-		s = r.get_info(thing_id='t3_'+ins[:-1])
-		print(s)
-		tries = 3 # Attempt to process each submission ten times.
+	ps = sub.get_new(limit=None)
+	for s in ps:
+		tries = 10 # Attempt to process each submission ten times.
 		while tries > 0:
 			try:
 				query = """INSERT OR IGNORE INTO submissions
@@ -48,13 +44,13 @@ def monitor(db, sub, thread, r):
 				author = s.author.name if s.author != None else "[deleted]"
 				data = (s.name, s.title, author, s.selftext, s.url, s.permalink,)
 				db.execute(query,data)
-				print(("%s: submission by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(s.created-TOFF)),author)))
+				print("%s: submission by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(s.created-TOFF)),author))
 				def readcomments(s,l):
 					for c in s:
 						try:
 							if type(c) == praw.objects.MoreComments:
 								mc = c.comments()
-								print(("Loading %d more comments..." % len(mc)))
+								print("Loading %d more comments..." % len(mc))
 								readcomments(mc,l+1)
 								continue
 
@@ -65,7 +61,7 @@ def monitor(db, sub, thread, r):
 							data = (c.name, c.parent_id, author, c.body, c.permalink,)
 							try:
 								db.execute(query,data)
-								print(("%s:%s %s (%s)" % (time.strftime("%Y-%m-%d %X",time.gmtime(c.created-46800))," "*l,author,c.name)))
+								print("%s:%s %s (%s)" % (time.strftime("%Y-%m-%d %X",time.gmtime(c.created-46800))," "*l,author,c.name))
 							except sqlite3.IntegrityError as ex:
 								pass
 							if not thread.is_alive():
@@ -86,7 +82,7 @@ def monitor(db, sub, thread, r):
 	db.close()
 
 def wait():
-	while input() != "q":
+	while raw_input() != "q":
 		pass
 	print("Saving...")
 
@@ -96,7 +92,7 @@ def main():
 	db = init_db("plounge3.db3") # This'll be consolidated by another script
 	thread = threading.Thread(target=wait)
 	thread.start()
-	monitor(db, sub, thread, r)
+	monitor(db, sub, thread)
 
 if __name__ == '__main__':
 	main()

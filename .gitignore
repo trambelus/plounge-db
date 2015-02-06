@@ -11,3 +11,15 @@ Local_scripts/lastUpdated.txt
 *.pyc
 *.pyc
 *.txt
+*.pyc
+Local_scripts/user_update_cache.txt
+Local_scripts/statsDay.txt
+Local_scripts/statsWeek.txt
+Local_scripts/lastUpdated.txt
+Local_scripts/2to3.py
+Local_scripts/lastUpdated.txt
+Local_scripts/plounge.db3-old
+Local_scripts/lastUpdated.txt
+Local_scripts/user_update_cache.txt
+Local_scripts/statsDay.txt
+*.txt
