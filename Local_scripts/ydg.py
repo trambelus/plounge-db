@@ -7,6 +7,7 @@ import threading
 import time
 import rlogin
 import praw
+import sys
 
 TOFF = 46800 # I have no idea why this is necessary.
 
@@ -30,42 +31,59 @@ def init_db(filename):
 			permalink TEXT
 		);""")
 	return db
-
-def monitor(db, sub, thread, r):
+# 2irgh9
+def monitor(db, sub, thread, r, start="zzzzzz"):
 
 	with open('ids.txt','r') as f:
 		ps = f.readlines()
 	for ins in ps:
-		print(ins[:-1])
-		s = r.get_info(thing_id='t3_'+ins[:-1])
-		print(s)
-		tries = 3 # Attempt to process each submission ten times.
+		if len(ins) == 7:
+			ins_comp = ins
+		else:
+			ins_comp = '0' + ins
+		if ins_comp > start:
+			continue
+		print('\n'+ins[:-1])
+		success = False
+		while not success:
+			try:
+				s = r.get_info(thing_id='t3_'+ins[:-1])
+				success = True
+			except Exception as ex:
+				print(ex)
+				pass
+		try:
+			print(s)
+		except UnicodeEncodeError:
+			print("(unprintable title)")
+
+		tries = 3 # Attempt to process each submission three times.
 		while tries > 0:
 			try:
 				query = """INSERT OR IGNORE INTO submissions
 					(id, title, author, selftext, url, udate, permalink)
-					VALUES (?, ?, ?, ?, ?, '%s', ?);""" % time.strftime("%Y-%m-%d %X",time.gmtime(s.created-TOFF))
+					VALUES (?, ?, ?, ?, ?, '%s', ?);""" % time.strftime("%Y-%m-%d %X",time.gmtime(s.created))
 				author = s.author.name if s.author != None else "[deleted]"
 				data = (s.name, s.title, author, s.selftext, s.url, s.permalink,)
 				db.execute(query,data)
-				print(("%s: submission by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(s.created-TOFF)),author)))
+				print(("%s: submission by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(s.created)),author)))
 				def readcomments(s,l):
 					for c in s:
 						try:
 							if type(c) == praw.objects.MoreComments:
 								mc = c.comments()
-								print(("Loading %d more comments..." % len(mc)))
+								print("Loading %d more comment%s..." % (len(mc), "" if len(mc) == 1 else "s"))
 								readcomments(mc,l+1)
 								continue
 
 							query = """INSERT OR IGNORE INTO comments
 								(id, parent_id, author, body, udate, permalink)
-								VALUES (?, ?, ?, ?, '%s', ?);""" % time.strftime("%Y-%m-%d %X",time.gmtime(c.created-TOFF))
+								VALUES (?, ?, ?, ?, '%s', ?);""" % time.strftime("%Y-%m-%d %X",time.gmtime(c.created))
 							author = c.author.name if c.author != None else "[deleted]"
 							data = (c.name, c.parent_id, author, c.body, c.permalink,)
 							try:
 								db.execute(query,data)
-								print(("%s:%s %s (%s)" % (time.strftime("%Y-%m-%d %X",time.gmtime(c.created-46800))," "*l,author,c.name)))
+								print(("%s:%s %s (%s)" % (time.strftime("%Y-%m-%d %X",time.gmtime(c.created))," "*l,author,c.name)))
 							except sqlite3.IntegrityError as ex:
 								pass
 							if not thread.is_alive():
@@ -90,13 +108,18 @@ def wait():
 		pass
 	print("Saving...")
 
-def main():
+def main(argv):
 	[r, sub] = rlogin.login()
 	print("Login successful")
 	db = init_db("plounge3.db3") # This'll be consolidated by another script
 	thread = threading.Thread(target=wait)
 	thread.start()
-	monitor(db, sub, thread, r)
+	if len(argv) == 3 and argv[1] == '-s' and len(argv[2]) == 6:
+		print("Starting at %s" % argv[2])
+		monitor(db, sub, thread, r, argv[2])
+	else:
+		monitor(db, sub, thread, r)
 
 if __name__ == '__main__':
-	main()
+	main(sys.argv)
+	#24oq2k

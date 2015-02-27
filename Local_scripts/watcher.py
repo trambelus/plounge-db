@@ -2,9 +2,10 @@
 # Better comments to follow. Fear not, /u/jherazob.
 
 from multiprocessing import Process, Queue # for userstats
+from threading import Thread
 import sqlite3 # database stuff
 import threading # for the quit thread
-import time # heals all wounds
+import time
 import stats
 import alert
 
@@ -62,7 +63,9 @@ def monitor(db, sub, quit_thread):
 
 	while True:
 
+		#log("Getting comments")
 		cs = sub.get_comments(limit=16)
+		#log("Got comments")
 		try:
 			for c in cs:
 				# create query string
@@ -77,11 +80,12 @@ def monitor(db, sub, quit_thread):
 					# 	if author != "[deleted]": # This 'user' doesn't get a page.
 					# 		p = Process(target=dbt.buildPage, args=(author,))
 					# 		p.start()
-					print(("%s: new comment by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(c.created-46800)),author)))
+					print(("-%s: new comment by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(c.created-46800)),author)))
 				except sqlite3.IntegrityError as ex:
+					#print(".")
 					continue # IntegrityError means there was already a matching entry in the db.
 					# In that case, just do nothing.
-				Process(target=alert.process, args=(c.permalink, author, c.body,False)).start()
+				Thread(target=alert.process, args=(c.permalink, author, c.body,False)).start()
 				if not quit_thread.is_alive():
 					break # exit the loop if the thread is done
 				time.sleep(1)
@@ -92,6 +96,7 @@ def monitor(db, sub, quit_thread):
 			log(ex) # something went wrong, print it to console and carry on
 		
 		if not quit_thread.is_alive(): 
+			log("Stopping")
 			break # exit the loop if the thread is done
 
 		ps = sub.get_new(limit=16)
@@ -105,11 +110,11 @@ def monitor(db, sub, quit_thread):
 				data = (s.name, s.title, author, s.selftext, s.url, s.permalink,)
 				try:
 					db.execute(query,data) # attempt to execute query
-					print(("%s: new submission by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(s.created-46800)),author)))
+					print(("-%s: new submission by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(s.created-46800)),author)))
 				except sqlite3.IntegrityError as ex:
 					continue # IntegrityError means there was already a matching entry in the db.
 					# In that case, just do nothing.
-				Process(target=alert.process, args=(s.permalink, author, s.selftext,True)).start()
+				#Process(target=alert.process, args=(s.permalink, author, s.selftext,True)).start()
 				if not quit_thread.is_alive():
 					break # exit the loop if the thread is done
 
@@ -119,6 +124,7 @@ def monitor(db, sub, quit_thread):
 			log(ex) # something went wrong, print it to console and carry on
 
 		if not quit_thread.is_alive():
+			log("Stopping")
 			break # exit the loop if the thread is done
 
 	db.close()
@@ -152,10 +158,10 @@ def main():
 	db = init_db("plounge2.db3") # Connects to db, creates it if necessary
 	quit_thread = threading.Thread(target=wait)
 	quit_thread.start()
-	queue = Queue()
-	Process(target=do_stats, args=(queue,)).start()
+	#queue = Queue()
+	#Process(target=do_stats, args=(queue,)).start()
 	monitor(db, sub, quit_thread) # setup done, start monitoring
-	queue.put('Done')
+	#queue.put('Done')
 
 if __name__ == '__main__':
-	main() # Python is weird sometimes
+	main()

@@ -5,6 +5,7 @@ import ftplib
 import rlogin
 import time
 import os
+import shutil
 
 def log(msg):
 	print(("%s:\t%s" % (time.strftime("%Y-%m-%d %X"), str(msg))))
@@ -22,11 +23,38 @@ def main():
 	while True:
 		s = process()
 		time.sleep(s)
+
+# Connects to the database. Creates it if it needs to.
+def init_db(filename):
+	db = sqlite3.connect(filename)
+	# Above line creates the file if it doesn't exist
+	# Lines below add the tables if they don't exist
+	db.execute("""CREATE TABLE IF NOT EXISTS submissions (
+			id TEXT NOT NULL PRIMARY KEY UNIQUE,
+			author TEXT,
+			title TEXT,
+			selftext TEXT,
+			url TEXT,
+			udate DATE NOT NULL,
+			permalink TEXT
+		);""")
+	db.execute("""CREATE TABLE IF NOT EXISTS comments (
+			id TEXT NOT NULL PRIMARY KEY UNIQUE,
+			parent_id TEXT,
+			author TEXT,
+			body TEXT,
+			udate DATE NOT NULL,
+			permalink TEXT
+		);""")
+	return db
 		
 def process():
+	db = None
+	ftp = None
 	try:
 		log("Merging databases...")
-		db = sqlite3.connect('plounge.db3')
+		shutil.copy('plounge.db3','D:\\plounge.db3')
+		db = init_db('plounge.db3')
 		for s in ['plounge2.db3', 'plounge3.db3']:
 			db.execute("attach '%s' as source;" % s)
 			try:
@@ -45,19 +73,19 @@ def process():
 		log("Building stats list...")
 
 		# statsWeek
-		l = db.execute("SELECT author, count(*) FROM comments WHERE udate > datetime('now','-7 days', 'localtime') AND author != '[deleted]' AND author != 'Gayburn_Wright' GROUP BY author ORDER BY count(*) DESC").fetchall()
-		with open("statsWeek.txt",'w') as f:
+		l = db.execute("SELECT author, count(*) FROM comments WHERE udate > datetime('now','-7 days', 'localtime') AND author != '[deleted]' GROUP BY author ORDER BY count(*) DESC").fetchall()
+		with open("statsWeek.txt",'wb') as f:
 			stats = ["<tr><td>%d</td><td>%s</td><td>%d</td></tr>" % tuple([i+1]+list(l[i])) for i in range(len(l))]
-			f.write("\n".join(stats))
+			f.write(bytes("\n".join(stats),'UTF-8'))
 		# with open("statsWeekA.txt",'w') as f:
 		# 	stats = ["%d:%s:%d" % tuple([i+1]+list(l[i])) for i in range(len(l))]
 		# 	f.write("\n".join(stats))
 
 		# statsDay
-		l = db.execute("SELECT author, count(*) FROM comments WHERE udate > datetime('now','-1 days', 'localtime') AND author != '[deleted]' AND author != 'Gayburn_Wright' GROUP BY author ORDER BY count(*) DESC").fetchall()
-		with open("statsDay.txt",'w') as f:
+		l = db.execute("SELECT author, count(*) FROM comments WHERE udate > datetime('now','-1 days', 'localtime') AND author != '[deleted]' GROUP BY author ORDER BY count(*) DESC").fetchall()
+		with open("statsDay.txt",'wb') as f:
 			stats = ["<tr><td>%d</td><td>%s</td><td>%d</td></tr>" % tuple([i+1]+list(l[i])) for i in range(len(l))]
-			f.write("\n".join(stats))
+			f.write(bytes("\n".join(stats),'UTF-8'))
 		#with open("statsDayA.txt",'w') as f:
 		#	stats = ["%d:%s:%d" % tuple([i+1]+list(l[i])) for i in range(len(l))]
 		#	f.write("\n".join(stats))
@@ -66,13 +94,13 @@ def process():
 		ftp = rlogin.getFTP()
 		log(rlogin.FTPlogin(ftp))
 		for f_ in ['statsWeek.txt','statsDay.txt']:
-			with open(f_,'r') as f:
-				ftp.storbinary('STOR %s' % f_, f)
+			with open(f_,'rb') as f:
+				print(ftp.storbinary('STOR %s' % f_, f))
 				log("%s transfer successful." % f_)
 
 		with open("lastUpdated.txt", 'w') as f:
 			f.write(time.strftime("%Y-%m-%d %X") + " EST")
-		with open("lastUpdated.txt", 'r') as f:
+		with open("lastUpdated.txt", 'rb') as f:
 			ftp.storbinary('STOR lastUpdated.txt', f)
 
 		# ftp.cwd('admin')
@@ -80,13 +108,16 @@ def process():
 		# 	with open(f_,'r') as f:
 		# 		ftp.storbinary('STOR %s' % f_, f)
 		# 		log("%s transfer successful." % f_)
-		db.close()
-		ftp.quit()
-		log("Sleeping...")
-		return 300
 	except Exception as ex:
 		print(ex)
-		return 5
+		return 45
+	finally:
+		if db:
+			db.close()
+		if ftp:
+			ftp.quit()
+	log("Sleeping...")
+	return 300
 		
 
 if __name__ == '__main__':

@@ -23,3 +23,4 @@ Local_scripts/lastUpdated.txt
 Local_scripts/user_update_cache.txt
 Local_scripts/statsDay.txt
 *.txt
+*.png
