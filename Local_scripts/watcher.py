@@ -11,8 +11,6 @@ import alert
 import praw
 import warnings
 
-TOFF = 43200
-
 try:
 	import dbt
 except ImportError:
@@ -61,7 +59,7 @@ def monitor(db, sub, quit_thread):
 		try:
 			for c in cs:
 				# create query string
-				created = time.strftime("%Y-%m-%d %X",time.gmtime(c.created-TOFF))
+				created = time.strftime("%Y-%m-%d %X",time.gmtime(c.created-46800))
 				query = """INSERT INTO comments
 					(id, parent_id, author, body, udate, permalink)
 					VALUES (?, ?, ?, ?, '%s', ?);""" % created
@@ -96,7 +94,7 @@ def monitor(db, sub, quit_thread):
 		try:
 			for s in ps: 
 				# create query string
-				created = time.strftime("%Y-%m-%d %X",time.gmtime(c.created-TOFF))
+				created = time.strftime("%Y-%m-%d %X",time.gmtime(c.created-46800))
 				query = """INSERT INTO submissions
 					(id, title, author, selftext, url, udate, permalink)
 					VALUES (?, ?, ?, ?, ?, '%s', ?);""" % created

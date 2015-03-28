@@ -37,7 +37,7 @@ def monitor(db, sub, thread):
 			for c in cs:
 				query = """INSERT INTO comments
 					(id, parent_id, author, body, udate, permalink)
-					VALUES (?, ?, ?, ?, '%s', ?);""" % time.strftime("%Y-%m-%d %X",time.gmtime(c.created-43200))
+					VALUES (?, ?, ?, ?, '%s', ?);""" % time.strftime("%Y-%m-%d %X",time.gmtime(c.created-46800))
 				author = c.author.name if c.author != None else "[deleted]"
 				data = (c.name, c.parent_id, author, c.body, c.permalink,)
 				try:
@@ -47,7 +47,7 @@ def monitor(db, sub, thread):
 					# 	stats.sendPage("%s.js" % author)
 					# if "brony" in c.body.lower() and "/u/__brony__" not in c.body.lower() and c.author == "BurlyHermit":
 					# 	notify(c.permalink,'__brony__')
-					print(("%s: new comment by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(c.created-43200)),author)))
+					print(("%s: new comment by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(c.created-46800)),author)))
 				except sqlite3.IntegrityError as ex:
 					pass
 
@@ -67,12 +67,12 @@ def monitor(db, sub, thread):
 			for s in ps:
 				query = """INSERT INTO submissions
 					(id, title, author, selftext, url, udate, permalink)
-					VALUES (?, ?, ?, ?, ?, '%s', ?);""" % time.strftime("%Y-%m-%d %X",time.gmtime(s.created-43200))
+					VALUES (?, ?, ?, ?, ?, '%s', ?);""" % time.strftime("%Y-%m-%d %X",time.gmtime(s.created-46800))
 				author = s.author.name if s.author != None else "[deleted]"
 				data = (s.name, s.title, author, s.selftext, s.url, s.permalink,)
 				try:
 					db.execute(query,data)
-					print(("%s: new submission by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(s.created-43200)),author)))
+					print(("%s: new submission by %s" % (time.strftime("%Y-%m-%d %X",time.gmtime(s.created-46800)),author)))
 				except sqlite3.IntegrityError as ex:
 					pass
 				if not thread.is_alive():
