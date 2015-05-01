@@ -1,2 +1,0 @@
-python trans.py
-pause

@@ -72,7 +72,7 @@ def process():
 		log("Merge successful.")
 		log("Building stats list...")
 
-		# statsWeek
+		# statsWeek (comments)
 		l = db.execute("SELECT author, count(*) FROM comments WHERE udate > datetime('now','-7 days', 'localtime') AND author != '[deleted]' GROUP BY author ORDER BY count(*) DESC").fetchall()
 		with open("statsWeek.txt",'wb') as f:
 			stats = ["<tr><td>%d</td><td>%s</td><td>%d</td></tr>" % tuple([i+1]+list(l[i])) for i in range(len(l))]
@@ -81,7 +81,7 @@ def process():
 		# 	stats = ["%d:%s:%d" % tuple([i+1]+list(l[i])) for i in range(len(l))]
 		# 	f.write("\n".join(stats))
 
-		# statsDay
+		# statsDay (comments)
 		l = db.execute("SELECT author, count(*) FROM comments WHERE udate > datetime('now','-1 days', 'localtime') AND author != '[deleted]' GROUP BY author ORDER BY count(*) DESC").fetchall()
 		with open("statsDay.txt",'wb') as f:
 			stats = ["<tr><td>%d</td><td>%s</td><td>%d</td></tr>" % tuple([i+1]+list(l[i])) for i in range(len(l))]
@@ -90,10 +90,40 @@ def process():
 		#	stats = ["%d:%s:%d" % tuple([i+1]+list(l[i])) for i in range(len(l))]
 		#	f.write("\n".join(stats))
 
-		log("Connecting to Pizza's server...")
+		# statsWeek (submissions)
+		l = db.execute("SELECT author, count(*) FROM submissions WHERE udate > datetime('now','-7 days', 'localtime') AND author != '[deleted]' GROUP BY author ORDER BY count(*) DESC").fetchall()
+		with open("statsWeekS.txt",'wb') as f:
+			stats = ["<tr><td>%d</td><td>%s</td><td>%d</td></tr>" % tuple([i+1]+list(l[i])) for i in range(len(l))]
+			f.write(bytes("\n".join(stats),'UTF-8'))
+
+		# statsDay (submissions)
+		l = db.execute("SELECT author, count(*) FROM submissions WHERE udate > datetime('now','-1 days', 'localtime') AND author != '[deleted]' GROUP BY author ORDER BY count(*) DESC").fetchall()
+		with open("statsDayS.txt",'wb') as f:
+			stats = ["<tr><td>%d</td><td>%s</td><td>%d</td></tr>" % tuple([i+1]+list(l[i])) for i in range(len(l))]
+			f.write(bytes("\n".join(stats),'UTF-8'))
+
+		# beesWeek
+		l = db.execute("SELECT author, COUNT(*) N, permalink FROM comments WHERE udate > datetime('now','-1 days', 'localtime') AND author != '[deleted]' AND (id LIKE '%5r' OR id LIKE '%5s') GROUP BY author ORDER BY n DESC").fetchall()
+		with open("beesWeek.txt",'wb') as f:
+			stats = ['<tr><td>%s</td><td>%s</td><td><a href="%s">Latest</a></td></tr>' % tuple(l[i]) for i in range(len(l))]
+			f.write(bytes("\n".join(stats),'UTF-8'))
+
+		# beesAll
+		l = db.execute("SELECT author, COUNT(*) N, permalink FROM comments WHERE author != '[deleted]' AND (id LIKE '%5r' OR id LIKE '%5s') GROUP BY author ORDER BY n DESC").fetchall()
+		with open("beesAll.txt",'wb') as f:
+			stats = ['<tr><td>%s</td><td>%s</td><td><a href="%s">Latest</a></td></tr>' % tuple(l[i]) for i in range(len(l))]
+			f.write(bytes("\n".join(stats),'UTF-8'))
+
+		# beesRecent
+		l = db.execute("SELECT author, udate, permalink FROM comments WHERE author != '[deleted]' AND (id LIKE '%5r' OR id LIKE '%5s') ORDER BY udate DESC").fetchall()
+		with open("beesRecent.txt",'wb') as f:
+			stats = ['<tr><td>%s</td><td>%s</td><td><a href="%s">Latest</a></td></tr>' % tuple(l[i]) for i in range(len(l))]
+			f.write(bytes("\n".join(stats),'UTF-8'))
+
+		log("Connecting to server...")
 		ftp = rlogin.getFTP()
 		log(rlogin.FTPlogin(ftp))
-		for f_ in ['statsWeek.txt','statsDay.txt']:
+		for f_ in ['statsWeek.txt','statsDay.txt','statsWeekS.txt','statsDayS.txt','beesWeek.txt','beesAll.txt','beesRecent.txt']:
 			with open(f_,'rb') as f:
 				print(ftp.storbinary('STOR %s' % f_, f))
 				log("%s transfer successful." % f_)

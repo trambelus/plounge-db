@@ -3,7 +3,7 @@ import praw
 import sqlite3
 import re
 import time
-
+import sys
 
 def log(msg):
 	print(("%s:\t%s" % (time.strftime("%Y-%m-%d %X"), msg)))
@@ -56,13 +56,11 @@ def update_all(r, db, user):
 				log(ex)
 			db.commit()
 
-def main():
+def main(username):
 	r = praw.Reddit('user.py: user comment saver: http://github.com/trambelus/plounge-db')
-	usernames = ['SeatieBelt']
-	db = init_db('user.db3')
-	for username in usernames:
-		user = r.get_redditor(username)
-		update_all(r,db,user)
+	db = init_db('%s.db3' % username)
+	user = r.get_redditor(username)
+	update_all(r,db,user)
 
 if __name__ == '__main__':
-	main()
+	main(sys.argv[1])

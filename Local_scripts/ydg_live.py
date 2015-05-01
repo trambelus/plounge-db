@@ -9,8 +9,6 @@ import rlogin
 import praw
 import sys
 
-TOFF = 46800 # I have no idea why this is necessary.
-
 def init_db(filename):
 	db = sqlite3.connect(filename)
 	db.execute("""CREATE TABLE IF NOT EXISTS submissions (
@@ -46,7 +44,7 @@ def monitor(db, sub, thread, r, start="zzzzzz"):
 			try:
 				query = """INSERT OR IGNORE INTO submissions
 					(id, title, author, selftext, url, udate, permalink)
-					VALUES (?, ?, ?, ?, ?, '%s', ?);""" % time.strftime("%Y-%m-%d %X",time.gmtime(s.created))
+					VALUES (?, ?, ?, ?, ?, '%s', ?);""" % time.strftime("%Y-%m-%d %X",time.gmtime(s.created_utc))
 				author = s.author.name if s.author != None else "[deleted]"
 				data = (s.name, s.title, author, s.selftext, s.url, s.permalink,)
 				db.execute(query,data)
@@ -62,7 +60,7 @@ def monitor(db, sub, thread, r, start="zzzzzz"):
 
 							query = """INSERT OR IGNORE INTO comments
 								(id, parent_id, author, body, udate, permalink)
-								VALUES (?, ?, ?, ?, '%s', ?);""" % time.strftime("%Y-%m-%d %X",time.gmtime(c.created))
+								VALUES (?, ?, ?, ?, '%s', ?);""" % time.strftime("%Y-%m-%d %X",time.gmtime(c.created_utc))
 							author = c.author.name if c.author != None else "[deleted]"
 							data = (c.name, c.parent_id, author, c.body, c.permalink,)
 							try:
@@ -93,8 +91,8 @@ def wait():
 	print("Saving...")
 
 def main(argv):
-	[r, sub] = rlogin.login()
-	print("Login successful")
+	r = praw.Reddit('/r/mlplounge consolidation script')
+	sub = r.get_subreddit('mlplounge')
 	db = init_db("plounge3.db3") # This'll be consolidated by another script
 	thread = threading.Thread(target=wait)
 	thread.start()

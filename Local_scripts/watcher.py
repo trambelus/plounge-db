@@ -59,7 +59,7 @@ def monitor(db, sub, quit_thread):
 		try:
 			for c in cs:
 				# create query string
-				created = time.strftime("%Y-%m-%d %X",time.gmtime(c.created-46800))
+				created = time.strftime("%Y-%m-%d %X",time.gmtime(c.created_utc))
 				query = """INSERT INTO comments
 					(id, parent_id, author, body, udate, permalink)
 					VALUES (?, ?, ?, ?, '%s', ?);""" % created
@@ -94,7 +94,7 @@ def monitor(db, sub, quit_thread):
 		try:
 			for s in ps: 
 				# create query string
-				created = time.strftime("%Y-%m-%d %X",time.gmtime(c.created-46800))
+				created = time.strftime("%Y-%m-%d %X",time.gmtime(s.created_utc))
 				query = """INSERT INTO submissions
 					(id, title, author, selftext, url, udate, permalink)
 					VALUES (?, ?, ?, ?, ?, '%s', ?);""" % created
@@ -102,11 +102,11 @@ def monitor(db, sub, quit_thread):
 				data = (s.name, s.title, author, s.selftext, s.url, s.permalink,)
 				try:
 					db.execute(query,data) # attempt to execute query
-					print("-%s: %s by %s" % (created, c.name, author))
+					print("-%s: %s by %s" % (created, s.name, author))
 				except sqlite3.IntegrityError as ex:
 					continue # IntegrityError means there was already a matching entry in the db.
 					# In that case, just do nothing.
-				#Thread(target=alert.process, args=(c.permalink, author, c.body, True, None)).start()
+				#Thread(target=alert.process, args=(s.permalink, author, s.body, True, None)).start()
 				if not quit_thread.is_alive():
 					break # exit the loop if the thread is done
 
@@ -148,6 +148,7 @@ def main():
 		db = init_db("plounge2.db3") # Connects to db, creates it if necessary
 		quit_thread = threading.Thread(target=wait)
 		quit_thread.start()
+		print("Database connected")
 		#queue = Queue()
 		#Process(target=do_stats, args=(queue,)).start()
 		monitor(db, sub, quit_thread) # setup done, start monitoring
