@@ -54,12 +54,13 @@ def monitor(db, sub, quit_thread):
 	while True:
 
 		#log("Getting comments")
-		cs = sub.get_comments(limit=16)
+		cs = sub.get_comments(limit=20)
 		#log("Got comments")
 		try:
 			for c in cs:
 				# create query string
 				created = time.strftime("%Y-%m-%d %X",time.gmtime(c.created_utc))
+				l_created = time.strftime("%Y-%m-%d %X",time.localtime(c.created_utc))
 				query = """INSERT INTO comments
 					(id, parent_id, author, body, udate, permalink)
 					VALUES (?, ?, ?, ?, '%s', ?);""" % created
@@ -71,7 +72,7 @@ def monitor(db, sub, quit_thread):
 					# 	if author != "[deleted]": # This 'user' doesn't get a page.
 					# 		p = Process(target=dbt.buildPage, args=(author,))
 					# 		p.start()
-					print("-%s: %s by %s" % (created, c.name, author))
+					print("-%s: %s by %s" % (l_created, c.name, author))
 				except sqlite3.IntegrityError as ex:
 					#print(".")
 					continue # IntegrityError means there was already a matching entry in the db.
@@ -90,11 +91,12 @@ def monitor(db, sub, quit_thread):
 			log("Stopping")
 			break # exit the loop if the thread is done
 
-		ps = sub.get_new(limit=16)
+		ps = sub.get_new(limit=12)
 		try:
 			for s in ps: 
 				# create query string
 				created = time.strftime("%Y-%m-%d %X",time.gmtime(s.created_utc))
+				l_created = time.strftime("%Y-%m-%d %X",time.localtime(s.created_utc))
 				query = """INSERT INTO submissions
 					(id, title, author, selftext, url, udate, permalink)
 					VALUES (?, ?, ?, ?, ?, '%s', ?);""" % created
@@ -102,7 +104,7 @@ def monitor(db, sub, quit_thread):
 				data = (s.name, s.title, author, s.selftext, s.url, s.permalink,)
 				try:
 					db.execute(query,data) # attempt to execute query
-					print("-%s: %s by %s" % (created, s.name, author))
+					print("-%s: %s by %s" % (l_created, s.name, author))
 				except sqlite3.IntegrityError as ex:
 					continue # IntegrityError means there was already a matching entry in the db.
 					# In that case, just do nothing.

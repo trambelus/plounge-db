@@ -103,19 +103,19 @@ def process():
 			f.write(bytes("\n".join(stats),'UTF-8'))
 
 		# beesWeek
-		l = db.execute("SELECT author, COUNT(*) N, permalink FROM comments WHERE udate > datetime('now','-1 days', 'localtime') AND author != '[deleted]' AND (id LIKE '%5r' OR id LIKE '%5s') GROUP BY author ORDER BY n DESC").fetchall()
+		l = db.execute("SELECT author, COUNT(*) N, permalink FROM comments WHERE udate > datetime('now','-7 days', 'localtime') AND author != '[deleted]' AND (id LIKE '%5r') GROUP BY author ORDER BY n DESC").fetchall()
 		with open("beesWeek.txt",'wb') as f:
 			stats = ['<tr><td>%s</td><td>%s</td><td><a href="%s">Latest</a></td></tr>' % tuple(l[i]) for i in range(len(l))]
 			f.write(bytes("\n".join(stats),'UTF-8'))
-
+		#  OR id LIKE '%5s'
 		# beesAll
-		l = db.execute("SELECT author, COUNT(*) N, permalink FROM comments WHERE author != '[deleted]' AND (id LIKE '%5r' OR id LIKE '%5s') GROUP BY author ORDER BY n DESC").fetchall()
+		l = db.execute("SELECT author, COUNT(*) N, permalink FROM comments WHERE author != '[deleted]' AND (id LIKE '%5r') GROUP BY author ORDER BY n DESC").fetchall()
 		with open("beesAll.txt",'wb') as f:
 			stats = ['<tr><td>%s</td><td>%s</td><td><a href="%s">Latest</a></td></tr>' % tuple(l[i]) for i in range(len(l))]
 			f.write(bytes("\n".join(stats),'UTF-8'))
 
 		# beesRecent
-		l = db.execute("SELECT author, udate, permalink FROM comments WHERE author != '[deleted]' AND (id LIKE '%5r' OR id LIKE '%5s') ORDER BY udate DESC").fetchall()
+		l = db.execute("SELECT author, udate, permalink FROM comments WHERE author != '[deleted]' AND (id LIKE '%5r') ORDER BY udate DESC").fetchall()
 		with open("beesRecent.txt",'wb') as f:
 			stats = ['<tr><td>%s</td><td>%s</td><td><a href="%s">Latest</a></td></tr>' % tuple(l[i]) for i in range(len(l))]
 			f.write(bytes("\n".join(stats),'UTF-8'))
@@ -129,7 +129,7 @@ def process():
 				log("%s transfer successful." % f_)
 
 		with open("lastUpdated.txt", 'w') as f:
-			f.write(time.strftime("%Y-%m-%d %X") + " EST")
+			f.write(time.strftime("%Y-%m-%d %X") + " EDT (UTC-4)")
 		with open("lastUpdated.txt", 'rb') as f:
 			ftp.storbinary('STOR lastUpdated.txt', f)
 
