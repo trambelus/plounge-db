@@ -46,3 +46,9 @@ LEFT OUTER JOIN
 (SELECT DATE(udate) ud, COUNT(*) nsp FROM comments c2
   WHERE body LIKE '%hype%' GROUP BY ud) v2
 ON v1.ud = v2.ud ORDER BY v1.ud
+
+# Average score
+SELECT author, AVG(score) FROM comments WHERE author IN (
+  SELECT author FROM comments WHERE udate > DATE('now','-100 days')
+  GROUP BY author ORDER BY COUNT(*) DESC LIMIT 100)
+GROUP BY author ORDER BY a DESC

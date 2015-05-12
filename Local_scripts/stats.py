@@ -69,7 +69,18 @@ def process():
 			except sqlite3.Error as err:
 				log(" ".join(["Error:",str(type(err)),'\n',str(err)]))
 			db.execute("detach source;")
-		log("Merge successful.")
+			log('%s complete' % s)
+
+		try:
+			db.execute("attach 'ds_tmp.db3' as sdb;")
+			db.execute("""REPLACE INTO comments
+				(id, parent_id, author, body, udate, permalink, score)
+				SELECT comments.id, comments.parent_id, comments.author, comments.body, sdb.scores.udate, comments.permalink, sdb.scores.score
+				FROM sdb.scores INNER JOIN comments ON (sdb.scores.id = comments.id)
+				""")
+			db.execute("detach sdb;")
+		except sqlite3.Error as err:
+			log(" ".join(["ds_tmp.db3 error: ",str(err)]))
 		log("Building stats list...")
 
 		# statsWeek (comments)
@@ -125,8 +136,7 @@ def process():
 		log(rlogin.FTPlogin(ftp))
 		for f_ in ['statsWeek.txt','statsDay.txt','statsWeekS.txt','statsDayS.txt','beesWeek.txt','beesAll.txt','beesRecent.txt']:
 			with open(f_,'rb') as f:
-				print(ftp.storbinary('STOR %s' % f_, f))
-				log("%s transfer successful." % f_)
+				log(str(ftp.storbinary('STOR %s' % f_, f)) + " - %s" % f_)
 
 		with open("lastUpdated.txt", 'w') as f:
 			f.write(time.strftime("%Y-%m-%d %X") + " EDT (UTC-4)")
