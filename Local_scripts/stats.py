@@ -79,6 +79,7 @@ def process():
 				FROM sdb.scores INNER JOIN comments ON (sdb.scores.id = comments.id)
 				""")
 			db.execute("detach sdb;")
+			log('ds_tmp.db3 complete')
 		except sqlite3.Error as err:
 			log(" ".join(["ds_tmp.db3 error: ",str(err)]))
 		log("Building stats list...")

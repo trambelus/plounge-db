@@ -7,9 +7,9 @@ def find_pw(username):
 		ret = next(x[1] for x in [t.split('\t') for t in stuff] if x[0] == username).rstrip()
 		return ret
 
-def login(username):
+def login(username, subreddit='mlplounge'):
 	r = praw.Reddit("Watcher of the PLounge, by __brony__")
-	sub = r.get_subreddit('mlplounge')
+	sub = r.get_subreddit(subreddit)
 	r.login(username, find_pw(username))
 	return [r, sub]
 

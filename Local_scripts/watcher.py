@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Better comments to follow. Fear not, /u/jherazob.
 
 from multiprocessing import Process, Queue # for userstats
 from threading import Thread

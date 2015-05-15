@@ -8,7 +8,6 @@ import time
 from imgurpython import ImgurClient
 from collections import Counter
 from wordcloud import WordCloud
-import re
 
 ID_LINK = '305kgd'
 USERNAME = 'AboutThisPlounger'
@@ -77,6 +76,7 @@ if __name__ == '__main__':
 	main()
 
 # Old word cloud code:
+	# import re
 	# words = re.findall(r'\w+', words)
 	# words = [w.rstrip().rstrip('.,?!\n') for w in words]
 	# top_words = [' '.join([i[0]]*i[1]) for i in Counter(words).most_common(MAX_WORDS)]

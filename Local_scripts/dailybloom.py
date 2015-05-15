@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Posts an Apple Bloom to the PLounge every day.
+# An Apple Bloom a day keeps the haters at bay
 
 import time
 import rlogin
