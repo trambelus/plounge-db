@@ -17,8 +17,11 @@ except ImportError:
 
 # Doesn't actually log, just prints a message to the console
 #  with the current date and time.
-def log(msg):
-	print(("%s:\t%s" % (time.strftime("%Y-%m-%d %X"), msg)))
+def log(*msg, file=None):
+	if file:
+		print("%s:\t%s" % (time.strftime("%Y-%m-%d %X"), msg), file=file)
+	else:
+		print("%s:\t%s" % (time.strftime("%Y-%m-%d %X"), msg))
 
 # Connects to the database. Creates it if it needs to.
 def init_db(filename):
@@ -50,11 +53,10 @@ def init_db(filename):
 # sub: subreddit object to poll
 # thread: 
 def monitor(db, sub, quit_thread):
-
+	
 	while True:
-
 		#log("Getting comments")
-		cs = sub.get_comments(limit=20)
+		cs = sub.get_comments(limit=16)
 		#log("Got comments")
 		try:
 			for c in cs:
@@ -74,8 +76,8 @@ def monitor(db, sub, quit_thread):
 					# 		p.start()
 					print("-%s: %s by %s" % (l_created, c.name, author))
 				except sqlite3.IntegrityError as ex:
-					#print(".")
-					continue # IntegrityError means there was already a matching entry in the db.
+					#print("." + c.name)
+					break # IntegrityError means there was already a matching entry in the db.
 					# In that case, just do nothing.
 				#Thread(target=alert.process, args=(c.permalink, author, c.body, False, c.parent_id)).start()
 				if not quit_thread.is_alive():
@@ -105,13 +107,14 @@ def monitor(db, sub, quit_thread):
 					db.execute(query,data) # attempt to execute query
 					print("-%s: %s by %s" % (l_created, s.name, author))
 				except sqlite3.IntegrityError as ex:
-					continue # IntegrityError means there was already a matching entry in the db.
+					break # IntegrityError means there was already a matching entry in the db.
 					# In that case, just do nothing.
 				#Thread(target=alert.process, args=(s.permalink, author, s.body, True, None)).start()
 				if not quit_thread.is_alive():
 					break # exit the loop if the thread is done
 
 			db.commit() # save db
+
 
 		except Exception as ex:
 			log(ex) # something went wrong, print it to console and carry on

@@ -61,8 +61,8 @@ def scan_for_contributors(r, submission, thread, started):
 			if c.author == None:
 				continue
 			if c.author.name not in done:
-				invite_contributor(r, c.author.name, thread, mod=c.author.name in MODS)
-				done.append(c.author.name)
+				invite_contributor(r, c.author.name, thread)
+				#done.append(c.author.name)
 			if time.time() > started + (60 * (CLOSE_MIN-WARN_MIN)) and not warned:
 				#update(r, thread, WARN_MSG)
 				warned = True
@@ -84,9 +84,9 @@ def create_live_thread(r, title, permalink):
 	log('Created live thread with id %s' % ret)
 	return ret
 
-def invite_contributor(r, contributor, thread, mod=False):
+def invite_contributor(r, contributor, thread):
 	url = 'http://www.reddit.com/api/live/%s/invite_contributor' % thread
-	if mod:
+	if contributor in MODS:
 		data = {
 			'name': contributor,
 			'permissions': '+all',
@@ -103,7 +103,8 @@ def invite_contributor(r, contributor, thread, mod=False):
 	try:
 		r.request_json(url, data=data)
 	except praw.errors.APIException as ex:
-		log('Warning: duplicate invitee')
+		print(ex)
+		#log('Warning: duplicate invitee')
 		pass
 
 def update(r, thread, msg):
@@ -122,10 +123,13 @@ def close_thread(r, thread):
 def main():
 	[r, subreddit] = rlogin.login(USERNAME, subreddit=SUBREDDIT)
 	submission = scan_for_thread(subreddit)
-	thread = create_live_thread(r, submission.title, submission.permalink)
+	#thread = create_live_thread(r, submission.title, submission.permalink)
+	thread = 'uwyz7p30mw62'
 	started = time.time()
-	for user in AUTO:
-		invite_contributor(r, user, thread, mod=user in MODS)
+	with open('autoadd.txt','r') as f:
+		auto = AUTO + [i.rstrip() for i in f.readlines()]
+	for user in set(auto):
+		invite_contributor(r, user, thread)
 	scan_for_contributors(r, submission, thread, started)
 
 if __name__ == '__main__':

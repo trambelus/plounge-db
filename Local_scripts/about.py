@@ -8,6 +8,8 @@ import time
 from imgurpython import ImgurClient
 from collections import Counter
 from wordcloud import WordCloud
+import sys
+import warnings
 
 ID_LINK = '305kgd'
 USERNAME = 'AboutThisPlounger'
@@ -66,13 +68,13 @@ def main():
 	[client_id, client_secret] = get_id_secret()
 	client = ImgurClient(client_id, client_secret)
 	while True:
-		word_cloud(db, 'hawke252', client)
+		word_cloud(db, sys.argv[1], client)
 		return
 		#s = scan(sub)
 		#assemble_info(db, s, client)
 
-
 if __name__ == '__main__':
+	warnings.filterwarnings("ignore")
 	main()
 
 # Old word cloud code:

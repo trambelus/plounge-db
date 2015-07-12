@@ -42,7 +42,7 @@ def main():
 	file_strs[1] = str(index+1)
 	file_strs[0] = time.strftime('%Y-%m-%d')
 	# The big line. Submit to the PLounge.
-	r.submit(sub, title, url=url)
+	r.submit(sub, title, url=url, send_replies=True)
 	# Writeback
 	with open('dailybloom.txt','w') as f:
 		f.write('\n'.join(file_strs))
