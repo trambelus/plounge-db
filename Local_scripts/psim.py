@@ -136,7 +136,7 @@ def monitor():
 		except Exception as ex:
 			print("Error: %s" % ex)
 
-def manual(user):
+def manual(user, num):
 	"""
 	This allows the script to be invoked like this:
 	psim.py manual some-reddit-user
@@ -146,10 +146,14 @@ def manual(user):
 	They never knew.
 	"""
 	model = get_markov(user)
-	print(unidecode(model.make_sentence()))
+	for i in range(num):
+		print(unidecode(model.make_sentence()))
 
 if __name__ == '__main__':
-	if len(sys.argv) == 3 and sys.argv[1] == 'manual':
-		manual(sys.argv[2])
+	if len(sys.argv) >= 3 and sys.argv[1].lower() == 'manual':
+		num = 1
+		if len(sys.argv) == 4:
+			num = int(sys.argv[3])
+		manual(sys.argv[2], num)
 	else:
 		monitor()

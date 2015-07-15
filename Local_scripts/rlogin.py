@@ -44,14 +44,16 @@ def set_auth(r, app_name, username, version):
 	post_data = {"grant_type": "password", "username": username, "password": password, "duration": "permanent"}
 	headers = {"User-Agent": "{0}/{1} by {2}".format(app_name, version, username)}
 	response = requests.post("https://www.reddit.com/api/v1/access_token", auth=client_auth, data=post_data, headers=headers)
-	print(response.json())
+	#print(response.json())
 	token = response.json()['access_token']
 	r.set_oauth_app_info(client_id, client_secret, redirect_uri)
 	r.set_access_credentials({'flair','privatemessages','submit'}, token)
 	return token
 
-def get_auth_r(username, app_name, version="2.0"):
-	uas = "{0}/{1} by {2}".format(app_name, version, username)
+def get_auth_r(username, app_name, version="2.0", uas=None):
+	[client_id, _, _] = find_app_info(app_name)
+	if uas == None:
+		uas = "Windows:{0}:{1} by {2}, id={3}".format(app_name, version, username, client_id)
 	r = praw.Reddit(uas)
 	set_auth(r, app_name, username, version)
 	return r
