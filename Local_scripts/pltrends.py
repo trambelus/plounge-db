@@ -7,7 +7,7 @@ import sys
 import numpy as np
 
 DATES = 16
-WS = 25
+WIN_SZ = 25
 
 QUERY = '''
 SELECT v1.ud, 100*CAST(nsp AS FLOAT)/ntl pct, nsp, ntl FROM
@@ -26,9 +26,9 @@ def graph(trend, dbpath=DBPATH, savepath=None):
 	db = sqlite3.connect(dbpath)
 	data = db.execute(QUERY % trend).fetchall()
 	data = list(map(list,zip(*[[i if i != None else 0 for i in j] for j in data])))
-	w = [1.0/WS]*WS
+	w = [1.0/WIN_SZ]*WIN_SZ
 	d2 = np.convolve(data[1],w,'valid')
-	d2 = np.roll(d2, WS//2)
+	d2 = np.roll(d2, WIN_SZ//2)
 	print(data[1])
 	ds = len(data[1])//DATES
 	plt.figure(num=None, figsize=(16,9), dpi=100, facecolor='w', edgecolor='k')

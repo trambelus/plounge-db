@@ -1,20 +1,63 @@
 #!/usr/bin/env python
 
+import sys
+import contextlib
+
+# These were stolen from StackOverflow
+# Gotta cut down on console clutter
+class DummyFile(object):
+    def write(self, x): pass
+
+@contextlib.contextmanager
+def nostderr():
+    save_stderr = sys.stderr
+    sys.stderr = DummyFile()
+    yield
+    sys.stderr = save_stderr
+
+@contextlib.contextmanager
+def nostdout():
+    save_stdout = sys.stdout
+    sys.stdout = DummyFile()
+    yield
+    sys.stdout = save_stdout
+
+@contextlib.contextmanager
+def silent():
+	with nostdout():
+		with nostderr():
+			yield
+
 import markovify
 import re
 import sqlite3
-import praw
+with silent():
+	import praw
 from multiprocessing import Process
 import time
-import sys
 import rlogin
 from unidecode import unidecode
-import nltk
+with nostderr():
+	import nltk
+import warnings
 
 USER = 'PloungerSimulator'
 APP = 'Simulator'
 STATE_SIZE = 2
 DBNAME = 'plounge.db3'
+LOGFILE = 'psim.log'
+
+def log(*msg, file=None):
+	"""
+	Prepends a timestamp and prints a message to the console and LOGFILE
+	"""
+	output = "%s:\t%s" % (time.strftime("%Y-%m-%d %X"), ' '.join(msg))
+	if file:
+		print(output, file=file)
+	else:
+		print(output)
+		with open(LOGFILE, 'a') as f:
+			f.write(output + '\n')
 
 class PText(markovify.Text):
 	"""
@@ -79,7 +122,10 @@ def get_markov(user):
 		if len(res) < 20:
 			return None
 		res = ' '.join([r[0] for r in res])
-		model = PText(res, state_size=STATE_SIZE)
+		try:
+			model = PText(res, state_size=STATE_SIZE)
+		except IndexError:
+			return None
 		f = open('usermodels\%s.txt' % user, 'w')
 		f.write(unidecode(res))
 		f.close()
@@ -94,15 +140,18 @@ def process(r, com, val):
 	"""
 	Multiprocessing target. Gets the Markov model, uses it to get a sentence, and posts that as a reply.
 	"""
+	warnings.simplefilter('ignore')
+	r = rlogin.get_auth_r(USER, APP)
+	com = r.get_info(thing_id=com.name)
 	target_user = val[val.find(' ')+1:]
 	if target_user[:3] == '/u/':
 		target_user = target_user[3:]
 	model = get_markov(target_user)
 	if model == None:
-		com.reply("User not found: %s\n\n_Note: this bot can only detect users with at least 20 comments logged on the Plounge._" % target_user)
+		com.reply("Could not simulate %s.\n\n_Note: this bot can only detect users with at least 20 comments logged on the Plounge._" % target_user)
 	else:
 		reply = unidecode(model.make_sentence())
-		print(reply)
+		log('%s by %s on %s:\n%s' % (target_user, com.author.name, time.strftime("%Y-%m-%d %X",time.localtime(com.created_utc)), reply))
 		com.reply(reply)
 
 def monitor():
@@ -110,17 +159,20 @@ def monitor():
 	Main loop. Looks through username notifications, comment replies, and whatever else,
 	and launches a single process for every new request it finds.
 	"""
+	warnings.simplefilter('ignore')
 	started = []
 	req_pat = re.compile(r"\+/u/%s\s(/u/)?[\w\d\-_]{3,20}" % USER.lower())
-	r = rlogin.get_auth_r(USER, APP)
+	with silent():
+		r = rlogin.get_auth_r(USER, APP)
 	t0 = time.time()
 	while True:
 		try:
 			# Every 55 minutes, refresh the login.
 			if (time.time() - t0 > 55*60):
-				r = rlogin.get_auth_r(USER, APP)
+				with silent():
+					r = rlogin.get_auth_r(USER, APP)
 				t0 = time.time()
-			mentions = r.get_inbox()
+			mentions = r.get_inbox(limit=30)
 			for com in mentions:
 				res = re.search(req_pat, com.body.lower())
 				if res == None:

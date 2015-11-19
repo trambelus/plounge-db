@@ -8,3 +8,12 @@ Local_scripts/plounge.db3-old
 *.html
 *.cys
 *.zip
+*.json
+Local_scripts/mptest.py
+*.css
+Local_scripts/test.py
+*.txt
+*.log
+*.txt
+Local_scripts/statsWeek.txt
+*.txt

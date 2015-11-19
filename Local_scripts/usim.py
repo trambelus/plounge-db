@@ -231,7 +231,7 @@ def monitor():
 			if not quit_proc.is_alive():
 				log("Quitting")
 				return
-			if len(q) > 0:
+			if q.qsize() > 0:
 				if q.get() == 'clear':
 					started = []
 			time.sleep(1)

@@ -75,7 +75,7 @@ def process():
 			db.execute("attach 'ds_tmp.db3' as sdb;")
 			db.execute("""REPLACE INTO comments
 				(id, parent_id, author, body, udate, permalink, score)
-				SELECT comments.id, comments.parent_id, comments.author, comments.body, sdb.scores.udate, comments.permalink, sdb.scores.score
+				SELECT comments.id, comments.parent_id, comments.author, comments.body, comments.udate, comments.permalink, sdb.scores.score
 				FROM sdb.scores INNER JOIN comments ON (sdb.scores.id = comments.id)
 				""")
 			db.execute("detach sdb;")
@@ -85,7 +85,7 @@ def process():
 		log("Building stats list...")
 
 		# statsWeek (comments)
-		l = db.execute("SELECT author, count(*) FROM comments WHERE udate > datetime('now','-7 days', 'localtime') AND author != '[deleted]' GROUP BY author ORDER BY count(*) DESC").fetchall()
+		l = db.execute("SELECT author, count(*) FROM comments WHERE udate > datetime('now','-7 days', 'localtime') AND author != '[deleted]' AND body != ';-;' GROUP BY author ORDER BY count(*) DESC").fetchall()
 		with open("statsWeek.txt",'wb') as f:
 			stats = ["<tr><td>%d</td><td>%s</td><td>%d</td></tr>" % tuple([i+1]+list(l[i])) for i in range(len(l))]
 			f.write(bytes("\n".join(stats),'UTF-8'))
@@ -94,7 +94,7 @@ def process():
 		# 	f.write("\n".join(stats))
 
 		# statsDay (comments)
-		l = db.execute("SELECT author, count(*) FROM comments WHERE udate > datetime('now','-1 days', 'localtime') AND author != '[deleted]' GROUP BY author ORDER BY count(*) DESC").fetchall()
+		l = db.execute("SELECT author, count(*) FROM comments WHERE udate > datetime('now','-1 days', 'localtime') AND author != '[deleted]' AND body != ';-;' GROUP BY author ORDER BY count(*) DESC").fetchall()
 		with open("statsDay.txt",'wb') as f:
 			stats = ["<tr><td>%d</td><td>%s</td><td>%d</td></tr>" % tuple([i+1]+list(l[i])) for i in range(len(l))]
 			f.write(bytes("\n".join(stats),'UTF-8'))
@@ -132,10 +132,16 @@ def process():
 			stats = ['<tr><td>%s</td><td>%s</td><td><a href="%s">Latest</a></td></tr>' % tuple(l[i]) for i in range(len(l))]
 			f.write(bytes("\n".join(stats),'UTF-8'))
 
+		# ;-;
+		l = db.execute("SELECT author, count(*) FROM comments WHERE udate > datetime('now','-7 days', 'localtime') AND author != '[deleted]' AND body = ';-;' GROUP BY author ORDER BY count(*) DESC").fetchall()
+		with open(";-;.txt",'wb') as f:
+			stats = ["<tr><td>%d</td><td>%s</td><td>%d</td></tr>" % tuple([i+1]+list(l[i])) for i in range(len(l))]
+			f.write(bytes("\n".join(stats),'UTF-8'))
+
 		log("Connecting to server...")
-		ftp = rlogin.getFTP()
-		log(rlogin.FTPlogin(ftp))
-		for f_ in ['statsWeek.txt','statsDay.txt','statsWeekS.txt','statsDayS.txt','beesWeek.txt','beesAll.txt','beesRecent.txt']:
+		ftp = ftplib.FTP('mlplounge.science')
+		log(ftp.login('plounge-stats',rlogin.find_pw('plounge-stats')))
+		for f_ in ['statsWeek.txt','statsDay.txt','statsWeekS.txt','statsDayS.txt','beesWeek.txt','beesAll.txt','beesRecent.txt',';-;.txt']:
 			with open(f_,'rb') as f:
 				log(str(ftp.storbinary('STOR %s' % f_, f)) + " - %s" % f_)
 
