@@ -76,7 +76,7 @@ def process():
 
 		log("Building stats list...")
 		# statsWeek (comments)
-		l = dbw.execute("SELECT author, count(*) FROM comments WHERE udate > datetime('now','-7 days', 'localtime') AND author != '[deleted]' AND body != ';-;' GROUP BY author ORDER BY count(*) DESC").fetchall()
+		l = db.execute("SELECT author, count(*) FROM comments WHERE udate > datetime('now','-7 days', 'localtime') AND author != '[deleted]' AND body != ';-;' GROUP BY author ORDER BY count(*) DESC").fetchall()
 		with open("statsWeek.txt",'wb') as f:
 			stats = ["<tr><td>%d</td><td>%s</td><td>%d</td></tr>" % tuple([i+1]+list(l[i])) for i in range(len(l))]
 			f.write(bytes("\n".join(stats),'UTF-8'))
@@ -85,7 +85,7 @@ def process():
 		# 	f.write("\n".join(stats))
 
 		# statsDay (comments)
-		l = dbw.execute("SELECT author, count(*) FROM comments WHERE udate > datetime('now','-1 days', 'localtime') AND author != '[deleted]' AND body != ';-;' GROUP BY author ORDER BY count(*) DESC").fetchall()
+		l = db.execute("SELECT author, count(*) FROM comments WHERE udate > datetime('now','-1 days', 'localtime') AND author != '[deleted]' AND body != ';-;' GROUP BY author ORDER BY count(*) DESC").fetchall()
 		with open("statsDay.txt",'wb') as f:
 			stats = ["<tr><td>%d</td><td>%s</td><td>%d</td></tr>" % tuple([i+1]+list(l[i])) for i in range(len(l))]
 			f.write(bytes("\n".join(stats),'UTF-8'))
@@ -94,37 +94,37 @@ def process():
 		#	f.write("\n".join(stats))
 
 		# statsWeek (submissions)
-		l = dbw.execute("SELECT author, count(*) FROM submissions WHERE udate > datetime('now','-7 days', 'localtime') AND author != '[deleted]' GROUP BY author ORDER BY count(*) DESC").fetchall()
+		l = db.execute("SELECT author, count(*) FROM submissions WHERE udate > datetime('now','-7 days', 'localtime') AND author != '[deleted]' GROUP BY author ORDER BY count(*) DESC").fetchall()
 		with open("statsWeekS.txt",'wb') as f:
 			stats = ["<tr><td>%d</td><td>%s</td><td>%d</td></tr>" % tuple([i+1]+list(l[i])) for i in range(len(l))]
 			f.write(bytes("\n".join(stats),'UTF-8'))
 
 		# statsDay (submissions)
-		l = dbw.execute("SELECT author, count(*) FROM submissions WHERE udate > datetime('now','-1 days', 'localtime') AND author != '[deleted]' GROUP BY author ORDER BY count(*) DESC").fetchall()
+		l = db.execute("SELECT author, count(*) FROM submissions WHERE udate > datetime('now','-1 days', 'localtime') AND author != '[deleted]' GROUP BY author ORDER BY count(*) DESC").fetchall()
 		with open("statsDayS.txt",'wb') as f:
 			stats = ["<tr><td>%d</td><td>%s</td><td>%d</td></tr>" % tuple([i+1]+list(l[i])) for i in range(len(l))]
 			f.write(bytes("\n".join(stats),'UTF-8'))
 
 		# beesWeek
-		l = dbw.execute("SELECT author, COUNT(*) N, permalink FROM comments WHERE udate > datetime('now','-7 days', 'localtime') AND author != '[deleted]' AND (id LIKE '%5r') GROUP BY author ORDER BY n DESC").fetchall()
+		l = db.execute("SELECT author, COUNT(*) N, permalink FROM comments WHERE udate > datetime('now','-7 days', 'localtime') AND author != '[deleted]' AND (id LIKE '%5r') GROUP BY author ORDER BY n DESC").fetchall()
 		with open("beesWeek.txt",'wb') as f:
 			stats = ['<tr><td>%s</td><td>%s</td><td><a href="%s">Latest</a></td></tr>' % tuple(l[i]) for i in range(len(l))]
 			f.write(bytes("\n".join(stats),'UTF-8'))
 		#  OR id LIKE '%5s'
 		# beesAll
-		l = dbw.execute("SELECT author, COUNT(*) N, permalink FROM comments WHERE author != '[deleted]' AND (id LIKE '%5r') GROUP BY author ORDER BY n DESC").fetchall()
+		l = db.execute("SELECT author, COUNT(*) N, permalink FROM comments WHERE author != '[deleted]' AND (id LIKE '%5r') GROUP BY author ORDER BY n DESC").fetchall()
 		with open("beesAll.txt",'wb') as f:
 			stats = ['<tr><td>%s</td><td>%s</td><td><a href="%s">Latest</a></td></tr>' % tuple(l[i]) for i in range(len(l))]
 			f.write(bytes("\n".join(stats),'UTF-8'))
 
 		# beesRecent
-		l = dbw.execute("SELECT author, udate, permalink FROM comments WHERE author != '[deleted]' AND (id LIKE '%5r') ORDER BY udate DESC").fetchall()
+		l = db.execute("SELECT author, udate, permalink FROM comments WHERE author != '[deleted]' AND (id LIKE '%5r') ORDER BY udate DESC").fetchall()
 		with open("beesRecent.txt",'wb') as f:
 			stats = ['<tr><td>%s</td><td>%s</td><td><a href="%s">Latest</a></td></tr>' % tuple(l[i]) for i in range(len(l))]
 			f.write(bytes("\n".join(stats),'UTF-8'))
 
 		# ;-;
-		l = dbw.execute("SELECT author, count(*) FROM comments WHERE udate > datetime('now','-7 days', 'localtime') AND author != '[deleted]' AND body = ';-;' GROUP BY author ORDER BY count(*) DESC").fetchall()
+		l = db.execute("SELECT author, count(*) FROM comments WHERE udate > datetime('now','-7 days', 'localtime') AND author != '[deleted]' AND body = ';-;' GROUP BY author ORDER BY count(*) DESC").fetchall()
 		with open(";-;.txt",'wb') as f:
 			stats = ["<tr><td>%d</td><td>%s</td><td>%d</td></tr>" % tuple([i+1]+list(l[i])) for i in range(len(l))]
 			f.write(bytes("\n".join(stats),'UTF-8'))
@@ -152,8 +152,6 @@ def process():
 	finally:
 		if db:
 			db.close()
-		if dbw:
-			dbw.close()
 		if ftp:
 			ftp.quit()
 	log("Sleeping...")
