@@ -137,7 +137,7 @@ def process():
 				log(str(ftp.storbinary('STOR %s' % f_, f)) + " - %s" % f_)
 
 		with open("lastUpdated.txt", 'w') as f:
-			f.write(time.strftime("%Y-%m-%d %X") + " EDT (UTC-4)")
+			f.write(time.strftime("%Y-%m-%d %X") + " UTC")
 		with open("lastUpdated.txt", 'rb') as f:
 			ftp.storbinary('STOR lastUpdated.txt', f)
 
