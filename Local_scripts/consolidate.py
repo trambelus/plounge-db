@@ -55,7 +55,7 @@ def process():
 	try:
 		log("Merging databases...")
 		shutil.copy('plounge.db3','D:\\plounge.db3')
-		db = init_db('ploungeW.db3')
+		db = init_db('plounge.db3')
 		for s in ['plounge2.db3', 'plounge3.db3']:
 			db.execute("attach '%s' as source;" % s)
 			try:
@@ -71,8 +71,34 @@ def process():
 				log(" ".join(["Error:",str(type(err)),'\n',str(err)]))
 			db.execute("detach source;")
 			log('%s complete' % s)
-		db.execute("DELETE FROM comments WHERE udate < datetime('now','-7 days');")
-		db.execute("DELETE FROM submissions WHERE udate < datetime('now','-7 days');")
+
+		try:
+			db.execute("attach 'ds_tmp.db3' as sdb;")
+			db.execute("""REPLACE INTO comments
+				(id, parent_id, author, body, udate, permalink, score)
+				SELECT comments.id, comments.parent_id, comments.author, comments.body, comments.udate, comments.permalink, sdb.scores.score
+				FROM sdb.scores INNER JOIN comments ON (sdb.scores.id = comments.id)
+				""")
+			db.execute("detach sdb;")
+			log('ds_tmp.db3 complete')
+		except sqlite3.Error as err:
+			log(" ".join(["ds_tmp.db3 error: ",str(err)]))
+
+		log("Updating ploungeW.db3")
+		dbw = init_db('ploungeW.db3')
+		dbw.execute("DELETE FROM comments WHERE udate < datetime('now','-7 days');")
+		dbw.execute("DELETE FROM submissions WHERE udate < datetime('now','-7 days');")
+		dbw.execute("VACUUM;")
+		dbw.execute("attach 'plounge.db3' as source;")
+		dbw.execute("""REPLACE INTO submissions
+					(id, author, title, selftext, url, udate, permalink)
+					SELECT id, author, title, selftext, url, udate, permalink
+					FROM source.submissions WHERE udate > datetime('now','-7 days');""")
+		dbw.execute("""REPLACE INTO comments
+			(id, parent_id, author, body, udate, permalink)
+			SELECT id, parent_id, author, body, udate, permalink
+			FROM source.comments WHERE udate > datetime('now','-7 days');""")
+		dbw.execute("detach source;")
 
 		log("Building stats list...")
 		# statsWeek (comments)
