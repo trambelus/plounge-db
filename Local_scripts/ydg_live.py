@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # File: ya_dun_goofed.py
 # I hope no real programmers end up reading this
 
@@ -93,7 +93,7 @@ def wait():
 def main(argv):
 	r = praw.Reddit('/r/mlplounge consolidation script')
 	sub = r.get_subreddit('mlplounge')
-	db = init_db("plounge3.db3") # This'll be consolidated by another script
+	db = init_db("plounge4.db3") # This'll be consolidated by another script
 	thread = threading.Thread(target=wait)
 	thread.start()
 	if len(argv) == 3 and argv[1] == '-s' and len(argv[2]) == 6:
