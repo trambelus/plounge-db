@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # File: ya_dun_goofed.py
 # I hope no real programmers end up reading this
 
@@ -109,7 +109,8 @@ def wait():
 	print("Saving...")
 
 def main(argv):
-	[r, sub] = rlogin.login()
+	r = praw.Reddit("ydg.py: comment gatherer: https://github.com/trambelus/plounge-db")
+	sub = r.get_subreddit('mlplounge')
 	print("Login successful")
 	db = init_db("plounge3.db3") # This'll be consolidated by another script
 	thread = threading.Thread(target=wait)
