@@ -56,7 +56,7 @@ def process():
 		log("Merging databases...")
 		shutil.copy('plounge.db3','D:\\plounge.db3')
 		db = init_db('ploungeW.db3')
-		for s in ['plounge2.db3', 'plounge3.db3']:
+		for s in ['plounge2.db3', 'plounge3.db3', 'plounge4.db3']:
 			db.execute("attach '%s' as source;" % s)
 			try:
 				db.execute("""INSERT OR IGNORE INTO submissions
