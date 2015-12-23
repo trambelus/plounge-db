@@ -16,6 +16,10 @@ html = """
 	  return s.replace(first_char, function(m) { return m.toUpperCase(); });
 	}
 
+	recognition.onerror = function(event) {
+		console.log(event.error);
+	}
+
 	recognition.onresult = function(event) {
 		var final_transcript = '';
 		for (var i = event.resultIndex; i < event.results.length; ++i) {
@@ -24,14 +28,14 @@ html = """
 			u.text = final_transcript;
 			u.lang = 'en-US';
 			speechSynthesis.speak(u);
-			total_transcript += '<br>' + capitalize(final_transcript);
+			total_transcript += capitalize(final_transcript) + '<br>';
 			document.getElementById("transcript").innerHTML = total_transcript;
 		}
 	};
 	recognition.start()
 </script>"""
 app = Flask(__name__)
-@app.route('/')
+@app.route('/voice')
 def default():
 	return html
 if __name__ == '__main__':
