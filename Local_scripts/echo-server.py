@@ -19,7 +19,7 @@ html = """
 			u.text = final_transcript;
 			u.lang = 'en-US';
 			speechSynthesis.speak(u);
-			total_transcript += '\\n' + final_transcript;
+			total_transcript += '<br>' + final_transcript;
 			document.getElementById("transcript").innerHTML = total_transcript;
 		}
 	};
