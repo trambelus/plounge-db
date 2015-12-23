@@ -11,6 +11,11 @@ html = """
 
 	var total_transcript = ''
 
+	var first_char = /\S/;
+	function capitalize(s) {
+	  return s.replace(first_char, function(m) { return m.toUpperCase(); });
+	}
+
 	recognition.onresult = function(event) {
 		var final_transcript = '';
 		for (var i = event.resultIndex; i < event.results.length; ++i) {
@@ -19,7 +24,7 @@ html = """
 			u.text = final_transcript;
 			u.lang = 'en-US';
 			speechSynthesis.speak(u);
-			total_transcript += '<br>' + final_transcript;
+			total_transcript += '<br>' + capitalize(final_transcript);
 			document.getElementById("transcript").innerHTML = total_transcript;
 		}
 	};
