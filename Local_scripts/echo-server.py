@@ -1,9 +1,9 @@
+#!/usr/bin/env python3
 from flask import Flask
 html = """<button type="button" onclick="recognition.start()">Start</button>
 <button type="button" onclick="recognition.stop()">Stop</button>
 
 <script>
-	speechSynthesis.speak(new SpeechSynthesisUtterance("Initialized"));
 	recognition = new webkitSpeechRecognition();
 	//var speechSynthesis = new webkitSpeechSynthesis();
 
