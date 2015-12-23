@@ -9,7 +9,7 @@ html = """
 	recognition.continuous = true;
 	recognition.interimResults = false;
 
-	var total_transcript = ''
+	var total_transcript = '';
 
 	var first_char = /\S/;
 	function capitalize(s) {
@@ -18,7 +18,11 @@ html = """
 
 	recognition.onerror = function(event) {
 		console.log(event.error);
-	}
+	};
+
+	recognition.onend = function() {
+		recognition.start();
+	};
 
 	recognition.onresult = function(event) {
 		var final_transcript = '';
@@ -32,7 +36,7 @@ html = """
 			document.getElementById("transcript").innerHTML = total_transcript;
 		}
 	};
-	recognition.start()
+	recognition.start();
 </script>"""
 app = Flask(__name__)
 @app.route('/voice')
