@@ -9,6 +9,7 @@ HTML = """
 <script>
 url_on = '%s';
 url_off = '%s';
+id = 'light';
 delay = 50;
 document[id].src = url_on;
 document[id].src = url_off;
