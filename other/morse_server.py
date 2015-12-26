@@ -23,7 +23,7 @@ for (i = 0; i < word.length; i++) {
 
 display = function(index) {
 	document[id].src = sequence[index] == '0' ? url_off : url_on;
-	index = (index + 1) % sequence.length;
+	index = (index + 1) %% sequence.length;
 	setTimeout(display, [delay, index])
 }
 display(0);
