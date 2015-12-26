@@ -5,7 +5,8 @@ from flask import Flask, url_for
 app = Flask(__name__)
 
 HTML = """
-<head>
+<body></body>
+
 <script>
 url_on = '%s';
 url_off = '%s';
@@ -13,9 +14,8 @@ id = 'light';
 delay = 50;
 
 var image = document.createElement("img");
-var imageParent = document.getElementById("imgContainer");
 image.id = "id";
-imageParent.appendChild(image);
+document.body.appendChild(image);
 
 image.src = url_on;
 image.src = url_off;
@@ -36,8 +36,6 @@ display = function(index) {
 }
 display(0);
 </script>
-</head>
-<body><div id="imgContainer"></div></body>
 """
 
 @app.route('/morse')
