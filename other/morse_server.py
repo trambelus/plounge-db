@@ -35,7 +35,7 @@ def morse():
 	return HTML % (url_for('static',filename='on.png'),url_for('static',filename='off.png'))
 
 def main():
-	app.run(host='0.0.0.0', port=80)
+	app.run(host='0.0.0.0', port=80, debug=True)
 
 if __name__ == '__main__':
 	main()
