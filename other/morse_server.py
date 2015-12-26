@@ -13,7 +13,7 @@ id = 'light';
 delay = 50;
 
 var image = document.createElement("img");
-var imageParent = document.getElementById("body");
+var imageParent = document.getElementById("imgContainer");
 image.id = "id";
 imageParent.appendChild(image);
 
@@ -37,7 +37,7 @@ display = function(index) {
 display(0);
 </script>
 </head>
-<body></body>
+<body><div id="imgContainer"></div></body>
 """
 
 @app.route('/morse')
