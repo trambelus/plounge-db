@@ -82,6 +82,7 @@ def monitor(db, sub, quit_thread):
 				#Thread(target=alert.process, args=(c.permalink, author, c.body, False, c.parent_id)).start()
 				if not quit_thread.is_alive():
 					break # exit the loop if the thread is done
+				time.sleep(1)
 
 			db.commit() # save db
 
@@ -112,6 +113,7 @@ def monitor(db, sub, quit_thread):
 				#Thread(target=alert.process, args=(s.permalink, author, s.body, True, None)).start()
 				if not quit_thread.is_alive():
 					break # exit the loop if the thread is done
+				time.sleep(1)
 
 			db.commit() # save db
 

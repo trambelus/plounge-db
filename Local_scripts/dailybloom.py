@@ -11,12 +11,13 @@ FLAIR = "Daily Bloom"
 USER = '__brony__'
 APP = 'DailyBloom'
 SUB = 'MLPLounge'
+LIST_PATH = 'C:\\Users\\John\\Downloads\\static\\shared\\dailybloom.txt'
 
 def main():
 	# Holds every line of the file
 	file_strs = []
 	# Import file
-	with open(os.path.join(sys.path[0],'dailybloom.txt'),'r') as f:
+	with open(os.path.join(sys.path[0],LIST_PATH),'r') as f:
 		file_strs = [s.rstrip() for s in f.readlines()]
 	# Get local current time in struct_time (tuple) format
 	lt = time.localtime()
@@ -49,7 +50,7 @@ def main():
 	# The big line. Submit to the PLounge.
 	submission = r.submit(sub, title, url=url, send_replies=True)
 	# Writeback
-	with open('dailybloom.txt','w') as f:
+	with open(LIST_PATH,'w') as f:
 		f.write('\n'.join(file_strs))
 	r.select_flair(submission, '20154dac-1ea8-11e5-8d27-0ef6ca535a4d', FLAIR)
 
