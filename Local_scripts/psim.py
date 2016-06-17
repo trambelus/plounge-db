@@ -11,14 +11,14 @@ class DummyFile(object):
 @contextlib.contextmanager
 def nostderr():
     save_stderr = sys.stderr
-    sys.stderr = DummyFile()
+    #sys.stderr = DummyFile()
     yield
     sys.stderr = save_stderr
 
 @contextlib.contextmanager
 def nostdout():
     save_stdout = sys.stdout
-    sys.stdout = DummyFile()
+    #sys.stdout = DummyFile()
     yield
     sys.stdout = save_stdout
 
