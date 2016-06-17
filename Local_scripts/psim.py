@@ -44,7 +44,7 @@ import warnings
 USER = 'PloungerSimulator'
 APP = 'Simulator'
 STATE_SIZE = 2
-DBNAME = 'plounge.db3'
+DBNAME = 'ploungeW.db3'
 LOGFILE = 'psim.log'
 
 def log(*msg, file=None):
@@ -172,7 +172,7 @@ def monitor():
 				with silent():
 					r = rlogin.get_auth_r(USER, APP)
 				t0 = time.time()
-			mentions = r.get_inbox(limit=30)
+			mentions = r.get_inbox(limit=None)
 			for com in mentions:
 				res = re.search(req_pat, com.body.lower())
 				if res == None:
